@@ -1,18 +1,33 @@
 // screens/RegisterScreen.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import axios from 'axios';
 
 export default function RegisterScreen({ navigation }) {
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [nombre, setnombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleRegister = () => {
-    // Simular registro
-    console.log('Register button pressed');
-    navigation.navigate('Home');
+  const handleRegister = async () => {
+    if (password !== confirmPassword) {
+      alert('Las contraseñas no coinciden');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:3000/usuarios/register', {
+        nombre,
+        email,
+        password,
+      });
+      console.log(response.data );
+      // Redirigir al usuario a la pantalla de inicio
+      navigation.navigate('AssignmentsScreen');
+    } catch (error) {
+      console.error(error);
+      alert('Error al crear la cuenta');
+    }
   };
 
   return (
@@ -25,16 +40,8 @@ export default function RegisterScreen({ navigation }) {
         style={styles.input}
         placeholder="Nombre completo"
         placeholderTextColor="#FFFFFF"
-        value={fullName}
-        onChangeText={setFullName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Teléfono"
-        placeholderTextColor="#FFFFFF"
-        value={phone}
-        onChangeText={setPhone}
-        keyboardType="phone-pad"
+        value={nombre}
+        onChangeText={setnombre}
       />
       <TextInput
         style={styles.input}
