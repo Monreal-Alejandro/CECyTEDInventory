@@ -1,16 +1,26 @@
 // screens/LoginScreen.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import axios from 'axios';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    // Simular login
-    console.log('Login button pressed');
-    navigation.navigate('AssignmentsScreen'); // Navegar a AssignmentsScreen
-  };
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('http://localhost:3000/usuarios/login', {
+        email,
+        password,
+      });
+      console.log(response.data);
+      // Redirigir al usuario a la pantalla de inicio
+      navigation.navigate('AssignmentsScreen');
+    } catch (error) {
+      console.error(error);
+      alert('Correo electrónico o contraseña incorrectos');
+    }
+  }
 
   const handleRegister = () => {
     navigation.navigate('Register');
