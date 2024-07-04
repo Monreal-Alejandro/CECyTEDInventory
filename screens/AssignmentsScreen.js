@@ -1,30 +1,46 @@
 // screens/AssignmentsScreen.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  View, Text, Image, TextInput, TouchableOpacity, StyleSheet, FlatList, Modal
+  View, Text, Image, TextInput, TouchableOpacity, StyleSheet, FlatList, Modal,
+  Alert
 } from 'react-native';
 import { Ionicons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
+import axios from 'axios';
 
 export default function AssignmentsScreen({ navigation }) {
+  const API_URL = 'http://localhost:3000/asignaciones';
   const [modalVisible, setModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [newAssignment, setNewAssignment] = useState({
-    id: '', Nombre_equipo: '', empleado: '', usuario: '', Fecha: ''
+    asignacion_id: '', nombre_equipo: '', nombre_empleado: '', nombre_usuario: '', fecha_asignacion: ''
   });
   const [currentAssignment, setCurrentAssignment] = useState(null);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const data = [
-    { id: '1', Nombre_equipo: 'Laptop', empleado: 'John Doe', usuario: 'Jane Doe', Fecha: '2024-01-01' },
-    // Add more data as needed
-  ];
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
+
+  const fetchAssignments = async () => {
+    try {
+      const response = await axios.get(API_URL);
+      setData(response.data);
+      setLoading(false);
+    } catch (error) {
+      Alert.alert('Error', 'Ocurrió un error al cargar las asignaciones');
+      setLoading(false);
+      console.error(error);
+    }
+  };
 
   const renderItem = ({ item }) => (
     <View style={styles.row}>
-      <Text style={styles.cell}>{item.id}</Text>
-      <Text style={styles.cell}>{item.Nombre_equipo}</Text>
-      <Text style={styles.cell}>{item.empleado}</Text>
-      <Text style={styles.cell}>{item.usuario}</Text>
-      <Text style={styles.cell}>{item.Fecha}</Text>
+      <Text style={styles.cell}>{item.asignacion_id}</Text>
+      <Text style={styles.cell}>{item.nombre_equipo}</Text>
+      <Text style={styles.cell}>{item.nombre_empleado}</Text>
+      <Text style={styles.cell}>{item.nombre_usuario}</Text>
+      <Text style={styles.cell}>{item.fecha_asignacion}</Text>
       <TouchableOpacity
         style={styles.actionButton}
         onPress={() => {
@@ -40,16 +56,21 @@ export default function AssignmentsScreen({ navigation }) {
     </View>
   );
 
-  const handleAddAssignment = () => {
-    // Add the new assignment to the data (this should be replaced with actual logic to update the database)
-    data.push(newAssignment);
-    setModalVisible(false);
-    setNewAssignment({ id: '', Nombre_equipo: '', empleado: '', usuario: '', Fecha: '' });
+  const handleAddAssignment = async () => {
+    try {
+      const response = await axios.get(API_URL, newAssignment);
+      setData([...data, response.data]);
+      setModalVisible(false);
+      setNewAssignment({ asignacion_id: '', nombre_equipo: '', nombre_empleado: '', nombre_usuario: '', fecha_asignacion: '' });
+    } catch (error) {
+      Alert.alert('Error', 'Ocurrió un error al agregar la asignación');
+      console.error(error);
+    }
   };
 
   const handleEditAssignment = () => {
     // Update the current assignment (this should be replaced with actual logic to update the database)
-    const index = data.findIndex(item => item.id === currentAssignment.id);
+    const index = data.findIndex(item => item.asignacion_id  === currentAssignment.id);
     if (index !== -1) {
       data[index] = currentAssignment;
     }
