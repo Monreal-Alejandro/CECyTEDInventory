@@ -48,9 +48,11 @@ export default function AssignmentsScreen({ navigation }) {
           setEditModalVisible(true);
         }}
       >
-        <Text style={styles.actionText}>Editar</Text>
+      <Text style={styles.actionText}>Editar</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.actionButton}>
+      <TouchableOpacity
+       style={styles.actionButton} 
+       onPress={() => handleDeleteAssignment(item.asignacion_id)}>
         <Text style={styles.actionText}>Borrar</Text>
       </TouchableOpacity>
     </View>
@@ -66,6 +68,16 @@ export default function AssignmentsScreen({ navigation }) {
     }
     catch (error) {
       Alert.alert('Error', 'Ocurrió un error al agregar la asignación');
+      console.error(error);
+    }
+  };
+
+  const handleDeleteAssignment = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/${id}`);
+      fetchAssignments();
+    } catch (error) {
+      Alert.alert('Error', 'Ocurrió un error al borrar la asignación');
       console.error(error);
     }
   };
