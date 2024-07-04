@@ -70,14 +70,16 @@ export default function AssignmentsScreen({ navigation }) {
     }
   };
 
-  const handleEditAssignment = () => {
-    // Update the current assignment (this should be replaced with actual logic to update the database)
-    const index = data.findIndex(item => item.asignacion_id  === currentAssignment.id);
-    if (index !== -1) {
-      data[index] = currentAssignment;
+  const handleEditAssignment =  async () => {
+    try{
+      const response = await axios.put(`${API_URL}/${currentAssignment.asignacion_id}`, currentAssignment);
+      fetchAssignments();
+      setEditModalVisible(false);
+      setCurrentAssignment(null);
+    }catch (error){
+      Alert.alert('Error', 'Ocurrió un error al editar la asignación');
+      console.error(error);
     }
-    setEditModalVisible(false);
-    setCurrentAssignment(null);
   };
 
   return (
@@ -194,38 +196,31 @@ export default function AssignmentsScreen({ navigation }) {
             <Text style={styles.modalText}>Editar Asignación</Text>
             <TextInput
               style={styles.input}
-              placeholder="ID"
+              placeholder="No. equipo"
               placeholderTextColor="#00008b"
-              value={currentAssignment ? currentAssignment.id : ''}
-              onChangeText={(text) => setCurrentAssignment({ ...currentAssignment, id: text })}
+              value={currentAssignment ? currentAssignment.id_equipo : ''}
+              onChangeText={(text) => setCurrentAssignment({ ...currentAssignment, id_equipo: text })}
             />
             <TextInput
               style={styles.input}
-              placeholder="Nombre del Equipo"
+              placeholder="No. usuario"
               placeholderTextColor="#00008b"
-              value={currentAssignment ? currentAssignment.Nombre_equipo : ''}
-              onChangeText={(text) => setCurrentAssignment({ ...currentAssignment, Nombre_equipo: text })}
+              value={currentAssignment ? currentAssignment.id_usuario : ''}
+              onChangeText={(text) => setCurrentAssignment({ ...currentAssignment, id_usuario: text })}
             />
             <TextInput
               style={styles.input}
-              placeholder="Empleado"
+              placeholder="No. empleado"
               placeholderTextColor="#00008b"
-              value={currentAssignment ? currentAssignment.empleado : ''}
-              onChangeText={(text) => setCurrentAssignment({ ...currentAssignment, empleado: text })}
+              value={currentAssignment ? currentAssignment.id_empleado : ''}
+              onChangeText={(text) => setCurrentAssignment({ ...currentAssignment, id_empleado: text })}
             />
             <TextInput
               style={styles.input}
-              placeholder="Usuario"
+              placeholder="Fecha de asignación"
               placeholderTextColor="#00008b"
-              value={currentAssignment ? currentAssignment.usuario : ''}
-              onChangeText={(text) => setCurrentAssignment({ ...currentAssignment, usuario: text })}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Fecha"
-              placeholderTextColor="#00008b"
-              value={currentAssignment ? currentAssignment.Fecha : ''}
-              onChangeText={(text) => setCurrentAssignment({ ...currentAssignment, Fecha: text })}
+              value={currentAssignment ? currentAssignment.fecha_asignacion : ''}
+              onChangeText={(text) => setCurrentAssignment({ ...currentAssignment, fecha_asignacion: text })}
             />
             <TouchableOpacity style={styles.saveButton} onPress={handleEditAssignment}>
               <Text style={styles.saveButtonText}>Guardar</Text>
