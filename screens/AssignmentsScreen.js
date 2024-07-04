@@ -12,7 +12,7 @@ export default function AssignmentsScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [newAssignment, setNewAssignment] = useState({
-    asignacion_id: '', nombre_equipo: '', nombre_empleado: '', nombre_usuario: '', fecha_asignacion: ''
+     id_equipo : '', id_usuario: '', fecha_asignacion: '', id_empleado: ''
   });
   const [currentAssignment, setCurrentAssignment] = useState(null);
   const [data, setData] = useState([]);
@@ -58,11 +58,13 @@ export default function AssignmentsScreen({ navigation }) {
 
   const handleAddAssignment = async () => {
     try {
-      const response = await axios.get(API_URL, newAssignment);
-      setData([...data, response.data]);
+      const response = await axios.post(API_URL, newAssignment);
+      fetchAssignments();
       setModalVisible(false);
-      setNewAssignment({ asignacion_id: '', nombre_equipo: '', nombre_empleado: '', nombre_usuario: '', fecha_asignacion: '' });
-    } catch (error) {
+      setNewAssignment({
+        id_equipo : '', id_usuario: '', fecha_asignacion: ''});
+    }
+    catch (error) {
       Alert.alert('Error', 'Ocurrió un error al agregar la asignación');
       console.error(error);
     }
@@ -88,9 +90,9 @@ export default function AssignmentsScreen({ navigation }) {
       <Text style={styles.subtitle}>Asignaciones</Text>
       <TextInput style={styles.searchBar} placeholder="Buscar..." placeholderTextColor="#FFFFFF" />
       <View style={styles.tableHeader}>
-        <Text style={styles.headerCell}>id_asignaciones</Text>
-        <Text style={styles.headerCell}>Nombre_equipo</Text>
-        <Text style={styles.headerCell}>empleado</Text>
+        <Text style={styles.headerCell}>No. asignación</Text>
+        <Text style={styles.headerCell}>Equipo</Text>
+        <Text style={styles.headerCell}>Empleado</Text>
         <Text style={styles.headerCell}>usuario</Text>
         <Text style={styles.headerCell}>Fecha</Text>
         <Text style={styles.headerCell}>Acciones</Text>
@@ -144,38 +146,31 @@ export default function AssignmentsScreen({ navigation }) {
             <Text style={styles.modalText}>Agregar Asignación</Text>
             <TextInput
               style={styles.input}
-              placeholder="ID"
+              placeholder="No. equipo"
               placeholderTextColor="#00008b"
-              value={newAssignment.id}
-              onChangeText={(text) => setNewAssignment({ ...newAssignment, id: text })}
+              value={newAssignment.id_equipo}
+              onChangeText={(text) => setNewAssignment({ ...newAssignment, id_equipo: text })}
             />
             <TextInput
               style={styles.input}
-              placeholder="Nombre del Equipo"
+              placeholder="No. usuario"
               placeholderTextColor="#00008b"
-              value={newAssignment.Nombre_equipo}
-              onChangeText={(text) => setNewAssignment({ ...newAssignment, Nombre_equipo: text })}
+              value={newAssignment.id_usuario}
+              onChangeText={(text) => setNewAssignment({ ...newAssignment, id_usuario: text })}
             />
             <TextInput
               style={styles.input}
-              placeholder="Empleado"
+              placeholder="No. empleado"
               placeholderTextColor="#00008b"
-              value={newAssignment.empleado}
-              onChangeText={(text) => setNewAssignment({ ...newAssignment, empleado: text })}
+              value={newAssignment.id_empleado}
+              onChangeText={(text) => setNewAssignment({ ...newAssignment, id_empleado: text })}
             />
             <TextInput
               style={styles.input}
-              placeholder="Usuario"
+              placeholder="Fecha de asignación"
               placeholderTextColor="#00008b"
-              value={newAssignment.usuario}
-              onChangeText={(text) => setNewAssignment({ ...newAssignment, usuario: text })}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Fecha"
-              placeholderTextColor="#00008b"
-              value={newAssignment.Fecha}
-              onChangeText={(text) => setNewAssignment({ ...newAssignment, Fecha: text })}
+              value={newAssignment.fecha_asignacion}
+              onChangeText={(text) => setNewAssignment({ ...newAssignment, fecha_asignacion: text })}
             />
             <TouchableOpacity style={styles.saveButton} onPress={handleAddAssignment}>
               <Text style={styles.saveButtonText}>Guardar</Text>
