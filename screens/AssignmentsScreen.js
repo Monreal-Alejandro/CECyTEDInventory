@@ -8,7 +8,7 @@ import { Ionicons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
 
 export default function AssignmentsScreen({ navigation }) {
-  const API_URL = 'http://localhost:3000/asignaciones';
+  const API_URL = 'https://estadiastsu-production.up.railway.app/asignaciones';
   const [modalVisible, setModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [newAssignment, setNewAssignment] = useState({

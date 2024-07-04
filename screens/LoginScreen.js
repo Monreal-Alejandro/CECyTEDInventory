@@ -9,7 +9,7 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:3000/usuarios/login', {
+      const response = await axios.post('https://estadiastsu-production.up.railway.app/usuarios/login', {
         email,
         password,
       });

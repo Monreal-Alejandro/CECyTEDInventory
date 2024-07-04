@@ -16,7 +16,7 @@ export default function RegisterScreen({ navigation }) {
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/usuarios/register', {
+      const response = await axios.post('https://estadiastsu-production.up.railway.app/usuarios/register', {
         nombre,
         email,
         password,
