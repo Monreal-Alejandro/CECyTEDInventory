@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { Ionicons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
+import AutocompleteSearch from '../components/SearchComponent';
 
 export default function AssignmentsScreen({ navigation }) {
   const API_URL = 'https://estadiastsu-production.up.railway.app/asignaciones';
@@ -31,6 +32,15 @@ export default function AssignmentsScreen({ navigation }) {
       Alert.alert('Error', 'Ocurrió un error al cargar las asignaciones');
       setLoading(false);
       console.error(error);
+    }
+  };
+
+  const handleSelectSuggestion = async (suggestion) => {
+    try{
+      const response = await axios.get(`https://estadiastsu-production.up.railway.app/busquedas/asignaciones?busqueda=${suggestion}`);
+      setData(response.data);
+    } catch (error) {
+      console.log('Error en la busqueda: ', error);
     }
   };
 
@@ -102,7 +112,7 @@ export default function AssignmentsScreen({ navigation }) {
         <Ionicons name="person-circle-outline" size={30} color="white" onPress={() => navigation.navigate('Account')} />
       </View>
       <Text style={styles.subtitle}>Asignaciones</Text>
-      <TextInput style={styles.searchBar} placeholder="Buscar..." placeholderTextColor="#FFFFFF" />
+      <AutocompleteSearch onSelectSuggestion={handleSelectSuggestion}/>
       <View style={styles.tableHeader}>
         <Text style={styles.headerCell}>No. asignación</Text>
         <Text style={styles.headerCell}>Equipo</Text>
