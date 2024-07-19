@@ -1,8 +1,7 @@
-// screens/AssignmentsScreen.js
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, Image, TextInput, TouchableOpacity, StyleSheet, FlatList, Modal,
-  Alert
+  View, Text, Image, TextInput, TouchableOpacity, StyleSheet, ScrollView,
+  Modal, Alert, FlatList
 } from 'react-native';
 import { Ionicons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
@@ -13,7 +12,7 @@ export default function AssignmentsScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [newAssignment, setNewAssignment] = useState({
-     id_equipo : '', id_usuario: '', fecha_asignacion: '', id_empleado: ''
+    id_equipo: '', id_usuario: '', fecha_asignacion: '', id_empleado: ''
   });
   const [currentAssignment, setCurrentAssignment] = useState(null);
   const [data, setData] = useState([]);
@@ -36,35 +35,53 @@ export default function AssignmentsScreen({ navigation }) {
   };
 
   const handleSelectSuggestion = async (suggestion) => {
-    try{
+    try {
       const response = await axios.get(`https://estadiastsu-production.up.railway.app/busquedas/asignaciones?busqueda=${suggestion}`);
       setData(response.data);
     } catch (error) {
-      console.log('Error en la busqueda: ', error);
+      console.log('Error en la búsqueda: ', error);
     }
   };
 
   const renderItem = ({ item }) => (
-    <View style={styles.row}>
-      <Text style={styles.cell}>{item.asignacion_id}</Text>
-      <Text style={styles.cell}>{item.nombre_equipo}</Text>
-      <Text style={styles.cell}>{item.nombre_empleado}</Text>
-      <Text style={styles.cell}>{item.nombre_usuario}</Text>
-      <Text style={styles.cell}>{item.fecha_asignacion}</Text>
-      <TouchableOpacity
-        style={styles.actionButton}
-        onPress={() => {
-          setCurrentAssignment(item);
-          setEditModalVisible(true);
-        }}
-      >
-      <Text style={styles.actionText}>Editar</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-       style={styles.actionButton} 
-       onPress={() => handleDeleteAssignment(item.asignacion_id)}>
-        <Text style={styles.actionText}>Borrar</Text>
-      </TouchableOpacity>
+    <View style={styles.card}>
+      <Text style={styles.cardText}>
+        <Text style={{ fontWeight: 'bold' }}>No. asignación: </Text>
+        {item.asignacion_id}
+      </Text>
+      <Text style={styles.cardText}>
+        <Text style={{ fontWeight: 'bold' }}>No. equipo: </Text>
+        {item.nombre_equipo}
+      </Text>
+      <Text style={styles.cardText}>
+        <Text style={{ fontWeight: 'bold' }}>No. usuario: </Text>
+        {item.nombre_usuario}
+      </Text>
+      <Text style={styles.cardText}>
+        <Text style={{ fontWeight: 'bold' }}>No. empleado: </Text>
+        {item.nombre_empleado}
+      </Text>
+      <Text style={styles.cardText}>
+        <Text style={{ fontWeight: 'bold' }}>Fecha de asignación: </Text>
+        {item.fecha_asignacion}
+      </Text>
+      <View style={styles.actions}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => {
+            setCurrentAssignment(item);
+            setEditModalVisible(true);
+          }}
+        >
+          <Text style={styles.actionText}>Editar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => handleDeleteAssignment(item.asignacion_id)}
+        >
+          <Text style={styles.actionText}>Borrar</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -74,31 +91,54 @@ export default function AssignmentsScreen({ navigation }) {
       fetchAssignments();
       setModalVisible(false);
       setNewAssignment({
-        id_equipo : '', id_usuario: '', fecha_asignacion: ''});
-    }
-    catch (error) {
+        id_equipo: '', id_usuario: '', fecha_asignacion: ''
+      });
+      Alert.alert('Éxito', `Asignación agregada correctamente`);
+    } catch (error) {
       Alert.alert('Error', 'Ocurrió un error al agregar la asignación');
       console.error(error);
     }
   };
 
   const handleDeleteAssignment = async (id) => {
-    try {
-      await axios.delete(`${API_URL}/${id}`);
-      fetchAssignments();
-    } catch (error) {
-      Alert.alert('Error', 'Ocurrió un error al borrar la asignación');
-      console.error(error);
-    }
+    Alert.alert(
+      'Confirmar Eliminación',
+      '¿Estás seguro de que deseas eliminar esta asignación?',
+      [
+        {
+          text: 'Cancelar',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          onPress: async () => {
+            try {
+              const idDel=id;
+              await axios.delete(`${API_URL}/${id}`);
+              Alert.alert('Éxito', `Asignación eliminada correctamente con el número de asignación: ${idDel}`);
+              fetchAssignments();
+            } catch (error) {
+              Alert.alert('Error', 'Ocurrió un error al borrar la asignación');
+              console.error(error);
+            }
+          },
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
-  const handleEditAssignment =  async () => {
-    try{
+  const handleEditAssignment = async () => {
+    try {
+      const { asignacion_id } = currentAssignment;
       const response = await axios.put(`${API_URL}/${currentAssignment.asignacion_id}`, currentAssignment);
       fetchAssignments();
       setEditModalVisible(false);
       setCurrentAssignment(null);
-    }catch (error){
+      Alert.alert('Éxito', `Asignación número: ${asignacion_id} editada correctamente`);
+    } catch (error) {
       Alert.alert('Error', 'Ocurrió un error al editar la asignación');
       console.error(error);
     }
@@ -112,33 +152,18 @@ export default function AssignmentsScreen({ navigation }) {
         <Ionicons name="person-circle-outline" size={30} color="white" onPress={() => navigation.navigate('Account')} />
       </View>
       <Text style={styles.subtitle}>Asignaciones</Text>
-      <AutocompleteSearch onSelectSuggestion={handleSelectSuggestion}/>
-      <View style={styles.tableHeader}>
-        <Text style={styles.headerCell}>No. asignación</Text>
-        <Text style={styles.headerCell}>Equipo</Text>
-        <Text style={styles.headerCell}>Empleado</Text>
-        <Text style={styles.headerCell}>usuario</Text>
-        <Text style={styles.headerCell}>Fecha</Text>
-        <Text style={styles.headerCell}>Acciones</Text>
-      </View>
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        style={styles.table}
-      />
+      <AutocompleteSearch onSelectSuggestion={handleSelectSuggestion} />
+      <ScrollView style={styles.scrollContainer}>
+        <FlatList
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={item => item.asignacion_id.toString()}
+          numColumns={2}
+        />
+      </ScrollView>
       <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
         <Text style={styles.addButtonText}>Agregar</Text>
       </TouchableOpacity>
-      <View style={styles.pagination}>
-        <TouchableOpacity style={styles.pageButton}>
-          <Text style={styles.pageText}>Anterior</Text>
-        </TouchableOpacity>
-        <Text style={styles.pageNumber}>1</Text>
-        <TouchableOpacity style={styles.pageButton}>
-          <Text style={styles.pageText}>Siguiente</Text>
-        </TouchableOpacity>
-      </View>
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Assignments')}>
           <FontAwesome5 name="home" size={24} color="white" />
@@ -220,22 +245,22 @@ export default function AssignmentsScreen({ navigation }) {
               style={styles.input}
               placeholder="No. equipo"
               placeholderTextColor="#00008b"
-              value={currentAssignment ? currentAssignment.id_equipo : ''}
-              onChangeText={(text) => setCurrentAssignment({ ...currentAssignment, id_equipo: text })}
+              value={currentAssignment ? currentAssignment.nombre_equipo : ''}
+              onChangeText={(text) => setCurrentAssignment({ ...currentAssignment, nombre_equipo: text })}
             />
             <TextInput
               style={styles.input}
               placeholder="No. usuario"
               placeholderTextColor="#00008b"
-              value={currentAssignment ? currentAssignment.id_usuario : ''}
-              onChangeText={(text) => setCurrentAssignment({ ...currentAssignment, id_usuario: text })}
+              value={currentAssignment ? currentAssignment.nombre_usuario : ''}
+              onChangeText={(text) => setCurrentAssignment({ ...currentAssignment, nombre_usuario: text })}
             />
             <TextInput
               style={styles.input}
               placeholder="No. empleado"
               placeholderTextColor="#00008b"
-              value={currentAssignment ? currentAssignment.id_empleado : ''}
-              onChangeText={(text) => setCurrentAssignment({ ...currentAssignment, id_empleado: text })}
+              value={currentAssignment ? currentAssignment.nombre_empleado : ''}
+              onChangeText={(text) => setCurrentAssignment({ ...currentAssignment, nombre_empleado: text })}
             />
             <TextInput
               style={styles.input}
@@ -260,7 +285,7 @@ export default function AssignmentsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#9acd32', // yellowgreen background
+    backgroundColor: '#9acd32',
     padding: 10,
   },
   header: {
@@ -268,7 +293,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
-    marginTop: 40, // Add some margin from the top
+    marginTop: 40,
   },
   logo: {
     width: 50,
@@ -276,93 +301,66 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    color: '#FFFFFF', // white color for text
+    color: '#FFFFFF',
   },
   subtitle: {
     fontSize: 18,
-    color: '#FFFFFF', // white color for text
+    color: '#FFFFFF',
     marginBottom: 10,
   },
-  searchBar: {
-    height: 40,
-    borderColor: '#FFFFFF', // white border
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingLeft: 10,
+  scrollContainer: {
+    flex: 1,
     marginBottom: 10,
-    color: '#FFFFFF', // white color for text input
   },
-  tableHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: '#00008b', // darkblue border
-    paddingBottom: 5,
-    marginBottom: 5,
-    backgroundColor: '#00008b', // darkblue background for table header
-  },
-  headerCell: {
-    flex: 1,
-    color: '#FFFFFF', // white color for text
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  table: {
-    flex: 1,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 5,
-    backgroundColor: '#FFFFFF', // white background for rows
-    borderColor: '#00008b', // darkblue border color
-    borderWidth: 1,
+  card: {
+    backgroundColor: '#FFFFFF',
+    margin: 5,
+    padding: 10,
     borderRadius: 5,
-    padding: 5,
-  },
-  cell: {
+    borderWidth: 1,
+    borderColor: '#00008b',
     flex: 1,
-    color: '#000000', // black color for text
-    textAlign: 'center',
+  },
+  cardText: {
+    fontSize: 14,
+    marginBottom: 5,
+  },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
   },
   actionButton: {
-    backgroundColor: '#00008b', // darkblue background
-    borderColor: '#00008b', // darkblue border color
-    borderWidth: 1,
-    borderRadius: 5,
+    backgroundColor: '#00008b',
     padding: 5,
+    borderRadius: 5,
+    marginLeft: 5,
+  },
+  deleteButton: {
+    backgroundColor: '#d32f2f',
+    padding: 5,
+    borderRadius: 5,
     marginLeft: 5,
   },
   actionText: {
-    color: '#FFFFFF', // white color for button text
+    color: '#FFFFFF',
     fontSize: 12,
   },
-  pagination: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  pageButton: {
-    backgroundColor: '#00008b', // darkblue background
-    borderColor: '#00008b', // darkblue border color
-    borderWidth: 1,
+  addButton: {
+    backgroundColor: '#00008b',
+    padding: 10,
     borderRadius: 5,
-    padding: 5,
-    marginHorizontal: 10,
+    alignSelf: 'center',
+    marginBottom: 10,
   },
-  pageText: {
-    color: '#FFFFFF', // white color for button text
-  },
-  pageNumber: {
+  addButtonText: {
+    color: '#FFFFFF',
     fontSize: 16,
-    color: '#FFFFFF', // white color for text
   },
   navBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#00008b', // darkblue background
+    backgroundColor: '#00008b',
     paddingVertical: 10,
   },
   navButton: {
@@ -370,21 +368,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   navText: {
-    color: '#FFFFFF', // white color for text
+    color: '#FFFFFF',
     fontSize: 12,
-  },
-  addButton: {
-    backgroundColor: '#00008b', // limegreen background
-    borderColor: '#00008b', // limegreen border color
-    borderWidth: 1,
-    borderRadius: 5,
-    padding: 10,
-    alignSelf: 'center',
-    marginBottom: 10, // Adjusted to place the button above pagination and nav bar
-  },
-  addButtonText: {
-    color: '#FFFFFF', // white color for button text
-    fontSize: 16,
   },
   modalContainer: {
     flex: 1,
