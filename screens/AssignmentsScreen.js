@@ -165,7 +165,7 @@ export default function AssignmentsScreen({ navigation }) {
         <Text style={styles.addButtonText}>Agregar</Text>
       </TouchableOpacity>
       <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Assignments')}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('AssignmentsScreen')}>
           <FontAwesome5 name="home" size={24} color="white" />
           <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
