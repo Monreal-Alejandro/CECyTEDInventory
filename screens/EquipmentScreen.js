@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import { Ionicons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
-import AutocompleteSearch from '../components/SearchComponent';
+import AutocompleteSearch from '../components/SearchComponentEq';
 
 export default function EquipmentScreen({ navigation }) {
   const API_URL = 'https://estadiastsu-production.up.railway.app/equipos';
@@ -51,7 +51,7 @@ export default function EquipmentScreen({ navigation }) {
 
   const handleSelectSuggestion = async (suggestion) => {
     try {
-      const response = await axios.get(`https://estadiastsu-production.up.railway.app/busquedas/asignaciones?busqueda=${suggestion}`);
+      const response = await axios.get(`https://estadiastsu-production.up.railway.app/busquedas/equipos?busqueda=${suggestion}`);
       setData(response.data);
     } catch (error) {
       console.log('Error en la búsqueda: ', error);
@@ -172,7 +172,7 @@ export default function EquipmentScreen({ navigation }) {
         <FlatList
           data={data}
           renderItem={renderItem}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={item => item.id}
           numColumns={2}
         />
       </ScrollView>
