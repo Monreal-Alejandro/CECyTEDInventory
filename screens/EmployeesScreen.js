@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { Ionicons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
-import AutocompleteSearch from '../components/SearchComponent';
+import AutocompleteSearch from '../components/SearchComponentEmpl';
 
 export default function EmployeesScreen({ navigation }) {
   const API_URL = 'https://estadiastsu-production.up.railway.app/empleados';
@@ -26,6 +26,7 @@ export default function EmployeesScreen({ navigation }) {
     try {
       const response = await axios.get(API_URL);
       setData(response.data);
+      console.log('Data: ', response.data);
       setLoading(false);
     } catch (error) {
       Alert.alert('Error', 'Ocurrió un error al cargar los empleados');
@@ -36,7 +37,8 @@ export default function EmployeesScreen({ navigation }) {
 
   const handleSelectSuggestion = async (suggestion) => {
     try {
-      const response = await axios.get(`https://estadiastsu-production.up.railway.app/busquedas/asignaciones?busqueda=${suggestion}`);
+      const response = await axios.get(`https://estadiastsu-production.up.railway.app/busquedas/empleados?busqueda=${suggestion}`);
+      console.log('Response: ', response.data);
       setData(response.data);
     } catch (error) {
       console.log('Error en la búsqueda: ', error);
@@ -153,7 +155,7 @@ export default function EmployeesScreen({ navigation }) {
         <FlatList
           data={data}
           renderItem={renderItem}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={item => item.id}
           numColumns={2}
         />
       </ScrollView>
