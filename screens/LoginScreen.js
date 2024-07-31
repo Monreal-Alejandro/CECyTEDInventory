@@ -8,6 +8,7 @@ export default function LoginScreen({ navigation }) {
   const { login } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
 
   const handleLogin = async () => {
     try {
@@ -15,9 +16,10 @@ export default function LoginScreen({ navigation }) {
       navigation.navigate('AssignmentsScreen'); // Navega a la pantalla de asignaciones
       setEmail(''); // Limpia el campo de correo
       setPassword(''); // Limpia el campo de contraseña
+      setMessage(''); // Limpia el mensaje al iniciar sesión
     } catch (error) {
       // Muestra una alerta si ocurre un error durante el inicio de sesión
-      Alert.alert('Error', 'No se pudo iniciar sesión. Por favor, verifica tus credenciales.');
+      setMessage('Error', 'No se pudo iniciar sesión. Por favor, verifica tus credenciales.');
       console.error('Login error:', error);
     }
   };
