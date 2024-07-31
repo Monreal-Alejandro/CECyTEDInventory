@@ -1,26 +1,27 @@
 // screens/LoginScreen.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import axios from 'axios';
+import { useUser } from '../context/UserContext';
 
 export default function LoginScreen({ navigation }) {
+  const { login } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('https://estadiastsu-production.up.railway.app/usuarios/login', {
-        email,
-        password,
-      });
-      console.log(response.data);
-      // Redirigir al usuario a la pantalla de inicio
-      navigation.navigate('AssignmentsScreen');
+      await login(email, password); // Intenta iniciar sesión
+      navigation.navigate('AssignmentsScreen'); // Navega a la pantalla de asignaciones
+      setEmail(''); // Limpia el campo de correo
+      setPassword(''); // Limpia el campo de contraseña
     } catch (error) {
-      console.error(error);
-      alert('Correo electrónico o contraseña incorrectos');
+      // Muestra una alerta si ocurre un error durante el inicio de sesión
+      Alert.alert('Error', 'No se pudo iniciar sesión. Por favor, verifica tus credenciales.');
+      console.error('Login error:', error);
     }
-  }
+  };
+  
 
   const handleRegister = () => {
     navigation.navigate('Register');

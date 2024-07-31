@@ -2,29 +2,63 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
+import { useUser } from '../context/UserContext';
 
 export default function AccountScreen({ navigation }) {
+  const { user, setUser, logout } = useUser();
   const [modalVisible, setModalVisible] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const API_URL = 'https://estadiastsu-production.up.railway.app/usuarios';
 
-  const handleLogout = () => {
-    console.log('Logout button pressed');
+    // Verifica si user es null
+    if (!user) {
+      return (
+        <View style={styles.container}>
+          <Text style={styles.title}>No estás autenticado</Text>
+        </View>
+      );
+    }
+
+  //boton de cerrar sesion con axios
+  const handleLogout = async () => {
+    await logout();
     navigation.navigate('Login');
   };
 
   const handleChangePassword = () => {
-    console.log('Change password button pressed');
     setModalVisible(true);
   };
 
-  const handleSavePassword = () => {
-    if (newPassword === confirmPassword) {
-      console.log('Password changed successfully');
-      setModalVisible(false);
-    } else {
-      console.log('Passwords do not match');
+  //funcion para guardar la contraseña
+  const handleSavePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      alert('Las contraseñas nuevas no coinciden');
+      return;
+    }
+
+    try {
+      const response = await axios.put(`${API_URL}/upGradePass`, {
+        email: user.email, // Usa el email del usuario del contexto
+        password: currentPassword,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword
+      });
+
+      if (response.status === 200) {
+        alert('Contraseña cambiada con éxito');
+        setModalVisible(false);
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        alert('Error al cambiar la contraseña');
+      }
+    } catch (error) {
+      alert('Error al cambiar la contraseña');
+      console.error(error);
     }
   };
 
@@ -35,20 +69,16 @@ export default function AccountScreen({ navigation }) {
       </TouchableOpacity>
       <View style={styles.header}>
         <Ionicons name="person-circle-outline" size={100} color="white" />
-        <Text style={styles.title}>Cuenta</Text>
+        <Text style={styles.title}>Información de la cuenta</Text>
       </View>
       <View style={styles.infoContainer}>
         <View style={styles.infoRow}>
           <Ionicons name="person-outline" size={24} color="darkblue" style={styles.icon} />
-          <Text style={styles.infoText}>Nombre completo: John Doe</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Ionicons name="call-outline" size={24} color="darkblue" style={styles.icon} />
-          <Text style={styles.infoText}>Teléfono: 123-456-7890</Text>
+          <Text style={styles.infoText}>Nombre completo: {user.nombre || 'Nombre no disponible'}</Text>
         </View>
         <View style={styles.infoRow}>
           <Ionicons name="mail-outline" size={24} color="darkblue" style={styles.icon} />
-          <Text style={styles.infoText}>Correo electrónico: johndoe@example.com</Text>
+          <Text style={styles.infoText}>Correo electrónico: {user.email || 'Correo no disponible'}</Text>
         </View>
       </View>
       <TouchableOpacity style={styles.changePasswordButton} onPress={handleChangePassword}>
